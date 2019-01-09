@@ -86,6 +86,9 @@ namespace NzbDrone.Core.Parser
             if (lowerTitle.Contains("czech"))
                 languages.Add( Language.Czech);
 
+            if (lowerTitle.Contains("chinese"))
+                languages.Add( Language.Chinese);
+
             var match = LanguageRegex.Match(title);
 
             if (match.Groups["italian"].Captures.Cast<Capture>().Any())
