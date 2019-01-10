@@ -438,6 +438,8 @@ namespace NzbDrone.Core.Configuration
 
         public string ProxyUsername => GetValue("ProxyUsername", string.Empty);
 
+        public string TMDBAPILanguageCode => GetValue("TMDBAPILanguageCode", string.Empty);
+
         public string ProxyPassword => GetValue("ProxyPassword", string.Empty);
 
         public string ProxyBypassFilter => GetValue("ProxyBypassFilter", string.Empty);

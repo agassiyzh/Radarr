@@ -28,40 +28,43 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
     {
         private readonly IHttpClient _httpClient;
         private readonly Logger _logger;
-        
+
         private readonly IHttpRequestBuilderFactory _movieBuilder;
-        private readonly ITmdbConfigService _configService;
+        private readonly ITmdbConfigService _tmdbConfigService;
         private readonly IMovieService _movieService;
         private readonly IPreDBService _predbService;
         private readonly IImportExclusionsService _exclusionService;
         private readonly IAlternativeTitleService _altTitleService;
         private readonly IRadarrAPIClient _radarrAPI;
+        private readonly ConfigService _configService;
 
-        public SkyHookProxy(IHttpClient httpClient, IRadarrCloudRequestBuilder requestBuilder, ITmdbConfigService configService, IMovieService movieService,
-                            IPreDBService predbService, IImportExclusionsService exclusionService, IAlternativeTitleService altTitleService, IRadarrAPIClient radarrAPI, Logger logger)
+        public SkyHookProxy(IHttpClient httpClient, IRadarrCloudRequestBuilder requestBuilder, ITmdbConfigService tmdbConfigService, IMovieService movieService,
+                            IPreDBService predbService, IImportExclusionsService exclusionService, IAlternativeTitleService altTitleService, IRadarrAPIClient radarrAPI, Logger logger, ConfigService configService)
         {
             _httpClient = httpClient;
             _movieBuilder = requestBuilder.TMDB;
-            _configService = configService;
+            _tmdbConfigService = tmdbConfigService;
             _movieService = movieService;
             _predbService = predbService;
             _exclusionService = exclusionService;
             _altTitleService = altTitleService;
             _radarrAPI = radarrAPI;
+            _configService = configService;
 
             _logger = logger;
         }
 
         public Movie GetMovieInfo(int TmdbId, Profile profile = null, bool hasPreDBEntry = false)
         {
-            var langCode = profile != null ? IsoLanguages.Get(profile.Language)?.TwoLetterCode ?? "en" : "en";
+            // var langCode = profile != null ? IsoLanguages.Get(profile.Language)?.TwoLetterCode ?? "en" : "en";
+            var langCode = _configService.TMDBAPILanguageCode.IsNullOrWhiteSpace()? "en" : _configService.TMDBAPILanguageCode;
 
             var request = _movieBuilder.Create()
                .SetSegment("route", "movie")
                .SetSegment("id", TmdbId.ToString())
                .SetSegment("secondaryRoute", "")
                .AddQueryParam("append_to_response", "alternative_titles,release_dates,videos")
-               .AddQueryParam("language", langCode.ToUpper())
+               .AddQueryParam("language", langCode)
                // .AddQueryParam("country", "US")
                .Build();
 
@@ -159,8 +162,8 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
 
             movie.TitleSlug += "-" + movie.TmdbId.ToString();
 
-            movie.Images.Add(_configService.GetCoverForURL(resource.poster_path, MediaCoverTypes.Poster));//TODO: Update to load image specs from tmdb page!
-            movie.Images.Add(_configService.GetCoverForURL(resource.backdrop_path, MediaCoverTypes.Fanart));
+            movie.Images.Add(_tmdbConfigService.GetCoverForURL(resource.poster_path, MediaCoverTypes.Poster));//TODO: Update to load image specs from tmdb page!
+            movie.Images.Add(_tmdbConfigService.GetCoverForURL(resource.backdrop_path, MediaCoverTypes.Fanart));
             movie.Runtime = resource.runtime;
 
             //foreach(Title title in resource.alternative_titles.titles)
@@ -309,10 +312,12 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
 
         public Movie GetMovieInfo(string imdbId)
         {
+            var langCode = _configService.TMDBAPILanguageCode.IsNullOrWhiteSpace() ? "en" : _configService.TMDBAPILanguageCode;
             var request = _movieBuilder.Create()
                 .SetSegment("route", "find")
                 .SetSegment("id", imdbId)
                 .SetSegment("secondaryRoute", "")
+                .AddQueryParam("language", langCode)
                 .AddQueryParam("external_source", "imdb_id")
                 .Build();
 
@@ -393,6 +398,8 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
 
         public List<Movie> SearchForNewMovie(string title)
         {
+
+            var langCode = _configService.TMDBAPILanguageCode.IsNullOrWhiteSpace() ? "en" : _configService.TMDBAPILanguageCode;
             var lowerTitle = title.ToLower();
 
             lowerTitle = lowerTitle.Replace(".", "");
@@ -478,6 +485,7 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
                 .SetSegment("secondaryRoute", "")
                 .AddQueryParam("query", searchTerm)
                 .AddQueryParam("year", yearTerm)
+                .AddQueryParam("language", langCode)
                 .AddQueryParam("include_adult", false)
                 .Build();
 
@@ -582,7 +590,7 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
 
                 try
                 {
-                    var imdbPoster = _configService.GetCoverForURL(result.poster_path, MediaCoverTypes.Poster);
+                    var imdbPoster = _tmdbConfigService.GetCoverForURL(result.poster_path, MediaCoverTypes.Poster);
                     imdbMovie.Images.Add(imdbPoster);
                 }
                 catch (Exception e)
