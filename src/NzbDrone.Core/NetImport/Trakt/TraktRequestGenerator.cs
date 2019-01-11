@@ -94,7 +94,7 @@ namespace NzbDrone.Core.NetImport.Trakt
             switch (Settings.ListType)
             {
                 case (int)TraktListType.UserCustomList:
-                    var listName = Parser.Parser.ToUrlSlug(Settings.Listname.Trim());
+                    var listName = Settings.Listname.Trim();
                     link = link + $"/users/{Settings.Username.Trim()}/lists/{listName}/items/movies?limit={Settings.Limit}";
                     break;
                 case (int)TraktListType.UserWatchList:

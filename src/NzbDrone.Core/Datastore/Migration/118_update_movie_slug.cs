@@ -29,7 +29,7 @@ namespace NzbDrone.Core.Datastore.Migration
                         var year = seriesReader.GetInt32(2);
                         var tmdbId = seriesReader.GetInt32(3);
 
-                        var titleSlug = Parser.Parser.ToUrlSlug(title + "-" + tmdbId);
+                        var titleSlug = title + "-" + tmdbId;
 
                         using (IDbCommand updateCmd = conn.CreateCommand())
                         {

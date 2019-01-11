@@ -138,7 +138,7 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
             movie.TmdbId = TmdbId;
             movie.ImdbId = resource.imdb_id;
             movie.Title = resource.title;
-            movie.TitleSlug = Parser.Parser.ToUrlSlug(resource.title);
+            movie.TitleSlug = resource.title;
             movie.CleanTitle = resource.title.CleanSeriesTitle();
             movie.SortTitle = Parser.Parser.NormalizeTitle(resource.title);
             movie.Overview = resource.overview;
@@ -523,7 +523,7 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
             {
                 imdbMovie.SortTitle = Parser.Parser.NormalizeTitle(result.title);
                 imdbMovie.Title = result.title;
-                imdbMovie.TitleSlug = Parser.Parser.ToUrlSlug(result.title);
+                imdbMovie.TitleSlug = result.title;
 
                 try
                 {

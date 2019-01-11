@@ -20,11 +20,11 @@ using Nancy;
 
 namespace NzbDrone.Api.Movies
 {
-    public class MovieModule : NzbDroneRestModuleWithSignalR<MovieResource, Core.Movies.Movie>, 
+    public class MovieModule : NzbDroneRestModuleWithSignalR<MovieResource, Core.Movies.Movie>,
                                 IHandle<MovieImportedEvent>,
                                 IHandle<MovieFileDeletedEvent>,
-                                IHandle<MovieUpdatedEvent>,       
-                                IHandle<MovieEditedEvent>,  
+                                IHandle<MovieUpdatedEvent>,
+                                IHandle<MovieEditedEvent>,
                                 IHandle<MovieDeletedEvent>,
                                 IHandle<MovieRenamedEvent>,
                                 IHandle<MediaCoversUpdatedEvent>
@@ -243,7 +243,7 @@ namespace NzbDrone.Api.Movies
             //var mappings = null;//_sceneMappingService.FindByTvdbId(resource.TvdbId);
 
             //if (mappings == null) return;
-            
+
             //Not necessary anymore
 
             //resource.AlternateTitles = mappings.Select(v => new AlternateTitleResource { Title = v.Title, SeasonNumber = v.SeasonNumber, SceneSeasonNumber = v.SceneSeasonNumber }).ToList();
